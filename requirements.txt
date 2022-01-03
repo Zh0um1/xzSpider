@@ -1,0 +1,3 @@
+msedge_selenium_tools==3.141.3
+requests==2.25.1
+tomd==0.1.3
