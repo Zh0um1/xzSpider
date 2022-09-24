@@ -29,3 +29,5 @@
 ## fix
 
 修复了无法下载图片的问题
+
+修复了 https://github.com/Zh0um1/xzSpider/issues/1 提出的 `"`等特殊符号在Windows系统中为非法文件名和非法目录名的问题。原title以front matter形式记录在md文件中

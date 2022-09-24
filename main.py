@@ -5,7 +5,10 @@ import tomd
 import json
 import os
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from msedge.selenium_tools import Edge, EdgeOptions
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 def get_elements(url, clazz):
@@ -45,8 +48,8 @@ def generate_md(articles: list):
         source = driver.page_source
         title = driver.title
         title = title[:title.rfind("-")]
-        title = title.replace("|", "")
-        title = title.replace("*", "")
+        front_template = f'---\ntitle: {title}\n---\n'
+        title = title.replace('"', "'").replace("?", "-").replace("<", "-").replace(">", "-").replace("/", "-").replace("\\", "-").replace(":", "-").replace("*", "-").replace("|", "-")
         title = title.strip()
         pattern = "(?s)<div id=\"topic_content\" class=\"topic-content markdown-body\">(.*)<div class=\"post-user-action\" style=\"margin-top: 34px;\">"
         pattern = re.compile(pattern)
@@ -58,6 +61,7 @@ def generate_md(articles: list):
         file_name = output_dir + "/" + title + ".md"
         md = tomd.convert(content)
         md = format_md(md)
+        md = front_template + md
         md = replace_link(md, title)
         f = open(file_name, "w", encoding="utf-8")
         f.write(md)
@@ -80,7 +84,7 @@ def replace_link(src: str, title: str):
     }
     for link in img_links:
         print(f"\r\t\033[33m[+] Downloading images ...{count + 1}/{total}\033[0m", end="")
-        r = requests.get(url=link, headers=headers)
+        r = requests.get(url=link, headers=headers, verify=False)
         time.sleep(0.5)
         basename = f"image-{count}.png"
         f = open(f"{dir_name}/{basename}", "wb")
@@ -99,7 +103,7 @@ if __name__ == '__main__':
     options = EdgeOptions()
     options.use_chromium = True
     options.add_argument("blink-settings=imagesEnabled=false")
-    options.add_argument("--lang=zh-CN")
+    # options.add_argument("--lang=zh-CN")
     options.binary_location = config["location"]
 
     driver = Edge(options=options, executable_path="msedgedriver.exe")
