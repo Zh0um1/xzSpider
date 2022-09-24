@@ -74,17 +74,21 @@ def replace_link(src: str, title: str):
         os.mkdir(dir_name)
     count = 0
     total = len(img_links)
+    headers = {
+        "User-Agent": r'''Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36''',
+        "Referer": "https://xz.aliyun.com/"
+    }
     for link in img_links:
         print(f"\r\t\033[33m[+] Downloading images ...{count + 1}/{total}\033[0m", end="")
-        r = requests.get(url=link)
+        r = requests.get(url=link, headers=headers)
         time.sleep(0.5)
-        basename = f"image{count}.png"
+        basename = f"image-{count}.png"
         f = open(f"{dir_name}/{basename}", "wb")
         f.write(r.content)
         f.close()
         re_link = convert(r"\.", "\\.", link)
         ref = r'<img src=\"' + re_link + r'\">'
-        src = convert(ref, f"image{count}", src)
+        src = convert(ref, f"image-{count}", src)
         src = convert(re_link, f"{base_dir}/{basename}", src)
         count += 1
     return src
